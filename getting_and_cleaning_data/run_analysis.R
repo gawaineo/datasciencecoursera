@@ -44,10 +44,10 @@ std_col_names <- grep("std()", colnames(training_set_test), value = TRUE)
 mean_col_names <- grep("mean()", colnames(training_set_test), value = TRUE)
 
 # REDUCE: Reduce the number of columns to show only mean() and std() columns
-only_mean_columns_test <- training_set_test[mean_col_name_index]
-only_std_columns_test <- training_set_test[std_col_name_index]
-only_mean_columns_train <- training_set_train[mean_col_name_index]
-only_std_columns_train <- training_set_train[std_col_name_index]
+only_mean_columns_test <- training_set_test[mean_col_names]
+only_std_columns_test <- training_set_test[std_col_names]
+only_mean_columns_train <- training_set_train[mean_col_names]
+only_std_columns_train <- training_set_train[std_col_names]
 
 # REMOVE/CLEANUP: Remove original train and test data
 rm(training_set_test, training_set_train)
