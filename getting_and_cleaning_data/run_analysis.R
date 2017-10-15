@@ -1,21 +1,35 @@
 # Getting and Cleaning Data - Week 4 Final Project
+# Author: Gawaine O'Gilvie
+
 library(dplyr)
 library(data.table)
 
-# '-XYZ' is used to denote 3-axial signals in the X, Y and Z directions.
+zipUrl <- "https://d396qusza40orc.cloudfront.net/getdata%2Fprojectfiles%2FUCI%20HAR%20Dataset.zip"
 
-setwd("./UCI_HAR_Dataset/")
-#---------------------TEST DATA SET---------------------#
+# destination zip
+destfile <- paste0(getwd(), "/", "getting_cleaning_week4.zip")
 
-feature_names <- read.table("./features.txt", header = FALSE)
+# download and unzip file
+print("Downloading zip file")
+download.file(zipUrl, destfile, method = "curl")
+
+print("Unzipping Data Files.")
+unzip("./getting_cleaning_week4.zip")
+
+print("Producing Tidy Data")
+
+# LOAD DATA: Read features file
+feature_names <- read.table("UCI HAR Dataset/features.txt", header = FALSE)
+
 # LOAD DATA: Test Set
-subjects_ID_num_test <- read.table("./test/subject_test.txt", header = FALSE)
-training_set_test <- read.table("./test/X_test.txt", header = FALSE)
-activity_label_ID_test <- read.table("./test/Y_test.txt", header = FALSE)
+subjects_ID_num_test <- read.table("UCI HAR Dataset/test/subject_test.txt", header = FALSE)
+training_set_test <- read.table("UCI HAR Dataset/test/X_test.txt", header = FALSE)
+activity_label_ID_test <- read.table("UCI HAR Dataset/test/Y_test.txt", header = FALSE)
+
 # LOAD DATA: Train Set
-subjects_ID_num_train <- read.table("./train/subject_train.txt", header = FALSE)
-training_set_train <- read.table("./train/X_train.txt", header = FALSE)
-activity_label_ID_train <- read.table("./train/Y_train.txt", header = FALSE)
+subjects_ID_num_train <- read.table("UCI HAR Dataset/train/subject_train.txt", header = FALSE)
+training_set_train <- read.table("UCI HAR Dataset/train/X_train.txt", header = FALSE)
+activity_label_ID_train <- read.table("UCI HAR Dataset/train/Y_train.txt", header = FALSE)
 
 # ADD: column names based on the features list, activity, subjects ID
 names(training_set_test) <- feature_names[,2]
@@ -43,29 +57,21 @@ test_set_narrow <- cbind(subjects_ID_num_test, activity_label_ID_test, only_mean
 train_set_narrow <- cbind(subjects_ID_num_train, activity_label_ID_train, only_mean_columns_train, only_std_columns_train)
 
 # Add rows from TRAIN and TEST set to combine all the data sets using rbind
-merged_set <- rbind(test_set_narrow, train_set_narrow)
+merged_feature_set <- rbind(test_set_narrow, train_set_narrow)
 
-# FINAL STEP: From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
+#-------------------------------------FINAL STEP------------------------------#
+# From the data set in step 4, creates a second, independent tidy data set with the average of each variable for each activity and each subject.
+tidy_data <- merged_feature_set %>% group_by(physical_activity_type, subject_id) %>% summarise_all(mean)
 
+# Updated the physical activity type to descriptive labels
+tidy_data$physical_activity_type[tidy_data$physical_activity_type == 6] <- c("LAYING")
+tidy_data$physical_activity_type[tidy_data$physical_activity_type == 5] <- c("STANDING")
+tidy_data$physical_activity_type[tidy_data$physical_activity_type == 4] <- c("SITTING")
+tidy_data$physical_activity_type[tidy_data$physical_activity_type == 3] <- c("WALKING_DOWNSTAIRS")
+tidy_data$physical_activity_type[tidy_data$physical_activity_type == 2] <- c("WALKING_UPSTAIRS")
+tidy_data$physical_activity_type[tidy_data$physical_activity_type == 1] <- c("WALKING")
 
-# Update physical activity label colum with real names for the activity
-# test_set_narrow$physical_activity[test_set_narrow$physical_activity == 6,] <- c("LAYING")
-# test_set_narrow$physical_activity[test_set_narrow$physical_activity == 5,] <- c("STANDING")
-# test_set_narrow$physical_activity[test_set_narrow$physical_activity == 4,] <- c("SITTING")
-# test_set_narrow$physical_activity[test_set_narrow$physical_activity == 3,] <- c("WALKING_DOWNSTAIRS")
-# test_set_narrow$physical_activity[test_set_narrow$physical_activity == 2,] <- c("WALKING_UPSTAIRS")
-# test_set_narrow$physical_activity[test_set_narrow$physical_activity == 1,] <- c("WALKING")
-# 
-# train_set_narrow$physical_activity[train_set_narrow$physical_activity == 6,] <- c("LAYING")
-# train_set_narrow$physical_activity[train_set_narrow$physical_activity == 5,] <- c("STANDING")
-# train_set_narrow$physical_activity[train_set_narrow$physical_activity == 4,] <- c("SITTING")
-# train_set_narrow$physical_activity[train_set_narrow$physical_activity == 3,] <- c("WALKING_DOWNSTAIRS")
-# train_set_narrow$physical_activity[train_set_narrow$physical_activity == 2,] <- c("WALKING_UPSTAIRS")
-# train_set_narrow$physical_activity[train_set_narrow$physical_activity == 1,] <- c("WALKING")
+# Output the tidydata to a file
+write.table(tidy_data, "tidy_data_by_activity_and_subject.txt", row.name=FALSE)
 
 
-
-
-# Use GroupBy to average each column by physical activity and subject
-
-#----------------------END------------------------------#
