@@ -75,3 +75,8 @@ When the **run_analysis.R** is ran, it downloads the zip file holding all the da
 - 'test/X_test.txt': Test set.
 
 - 'test/y_test.txt': Test labels.
+
+The script then reads X_train.txt and X_test.txt into separate data frames to combine each
+with their respectively test and train data files. After test and train data are merged respectively,
+a rbind (combine rows) is performed to combine the tidy train and tidy test data frames. Finally,
+explicit labels are added and then the data is save to a local file on disk.
